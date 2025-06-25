@@ -300,7 +300,7 @@ const App = () => {
       email: 'caioj.m.h.r@gmail.com',
       phone: '+55 27 99716-3172', // Updated phone number
       address: 'Rua João José de Souza, 61, 29047-312',
-      profilePicture: 'https://placehold.co/128x128/333333/FFFFFF?text=CR', // User profile picture (placeholder URL)
+      profilePicture: 'https://github.com/CaioRibeir1/ciocrr/raw/refs/heads/main/src/perfil', // User profile picture (placeholder URL)
     },
     summary: 'Estagiário na área de TI, com experiência em infraestrutura, design e programação. Possuo vivência em suporte técnico de hardware e software, gerenciamento de redes, atendimento ao público e organização administrativa.',
     experience: [
