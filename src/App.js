@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const App = () => {
   // Common Icons (User, Email, Phone, Home, Briefcase, Open Book)
@@ -17,6 +17,7 @@ const App = () => {
   );
 
   const PhoneIcon = () => (
+    // Corrected PhoneIcon: Removed duplicate strokeLinecap
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 = 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
     </svg>
@@ -47,6 +48,14 @@ const App = () => {
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
       <circle cx="12" cy="8" r="7"></circle>
       <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+    </svg>
+  );
+
+  // New Copy Icon
+  const CopyIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
     </svg>
   );
 
@@ -199,7 +208,7 @@ const App = () => {
 
   const CloudIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
-      <path d="M18.84 9.24A6.5 6.5 0 0 0 12 3a6.5 6.5 0 0 0-6.84 6.24A4.5 4.5 0 0 0 3 13.5C3 15.43 4.57 17 6.5 17h11A4.5 4.5 0 0 0 22 12.5C22 10.57 20.43 9 18.5 9z"></path>
+      <path d="M18.84 9.24A6.5 6.5 0 0 0 12 3a6.5 6.5 0 0 0-6.84 6.24A4.5 4.5 0 0 0 3 13.5C3 15.43 4.57 17 6.5 = 17h11A4.5 4.5 0 0 0 22 12.5C22 10.57 20.43 9 18.5 9z"></path>
     </svg>
   );
 
@@ -256,6 +265,7 @@ const App = () => {
   // Mapping of icon names to components
   const IconComponents = {
     UserIcon, MailIcon, PhoneIcon, HomeIcon, BriefcaseIcon, BookOpenIcon, AwardIcon,
+    CopyIcon, // Added CopyIcon to the map
     ServerIcon, TableIcon, FilmIcon, FolderIcon, CreditCardIcon, NetworkIcon,
     SettingsIcon, LifeBuoyIcon, CpuIcon, PaletteIcon, UsersIcon, BoxIcon,
     MonitorIcon, FileTextIcon, LaptopIcon, HandshakeIcon, CloudIcon, HardDriveIcon,
@@ -266,30 +276,117 @@ const App = () => {
   const [activeCategory, setActiveCategory] = useState('Todas');
   const [currentCourseIndex, setCurrentCourseIndex] = useState(0);
   const [showPdfInCarousel, setShowPdfInCarousel] = useState(false);
+  const [isAnimatingCarousel, setIsAnimatingCarousel] = useState(false);
+  const [slideDirection, setSlideDirection] = useState('');
+
+  // Ref for Tone.js synth
+  const synthRef = useRef(null);
+  const audioContextReady = useRef(false);
+
+  // Notes for sound variation
+  const notes = ['C5', 'E5', 'G5'];
+
+  // Load Tone.js dynamically and initialize synth
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js'; // Tone.js CDN
+    script.async = true;
+    script.onload = () => {
+      // Ensure Tone.js is loaded before trying to use it
+      if (window.Tone) {
+        synthRef.current = new window.Tone.Synth({
+          oscillator: {
+            type: 'square' // For a classic 8-bit sound
+          },
+          envelope: {
+            attack: 0.001,
+            decay: 0.1,
+            sustain: 0.01,
+            release: 0.1
+          },
+          volume: -10 // Reduced volume (in dB) even further
+        }).toDestination();
+      }
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      // Clean up on component unmount
+      if (synthRef.current) {
+        synthRef.current.dispose();
+      }
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  // Function to play sound on button click
+  const playSound = () => {
+    // Start Tone.js context on first user interaction
+    if (window.Tone && !audioContextReady.current) {
+      window.Tone.start();
+      audioContextReady.current = true;
+    }
+
+    if (synthRef.current) {
+      const randomNote = notes[Math.floor(Math.random() * notes.length)];
+      synthRef.current.triggerAttackRelease(randomNote, '8n'); // Play a random note for an 8th note duration
+    }
+  };
 
   // Handler for the full resume PDF download button
   const handleDownloadPdfComplete = () => {
+    playSound(); // Play sound on click
     window.print();
+  };
+
+  // Function to copy text to clipboard
+  const copyToClipboard = (text) => {
+    playSound(); // Play sound on click
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    // Optionally, provide user feedback (e.g., a small temporary message)
+    alert('Copiado para a área de transferência!'); // Changed alert to a simple message
   };
 
   // Carousel navigation functions
   const goToPreviousCourse = () => {
-    setCurrentCourseIndex((prevIndex) =>
-      prevIndex === 0 ? coursesData.length - 1 : prevIndex - 1
-    );
-    setShowPdfInCarousel(false); // Hide PDF when changing course
+    playSound(); // Play sound on click
+    setIsAnimatingCarousel(true);
+    setSlideDirection('prev');
+    setTimeout(() => {
+      setCurrentCourseIndex((prevIndex) =>
+        prevIndex === 0 ? coursesData.length - 1 : prevIndex - 1
+      );
+      setIsAnimatingCarousel(false);
+    }, 300); // Match CSS transition duration
   };
 
   const goToNextCourse = () => {
-    setCurrentCourseIndex((prevIndex) =>
-      prevIndex === coursesData.length - 1 ? 0 : prevIndex + 1
-    );
-    setShowPdfInCarousel(false); // Hide PDF when changing course
+    playSound(); // Play sound on click
+    setIsAnimatingCarousel(true);
+    setSlideDirection('next');
+    setTimeout(() => {
+      setCurrentCourseIndex((prevIndex) =>
+        prevIndex === coursesData.length - 1 ? 0 : prevIndex + 1
+      );
+      setIsAnimatingCarousel(false);
+    }, 300); // Match CSS transition duration
   };
 
   // Toggle PDF visibility in carousel
   const togglePdfVisibility = () => {
+    playSound(); // Play sound on click
     setShowPdfInCarousel(!showPdfInCarousel);
+  };
+
+  // Function to handle skill category button click
+  const handleSkillCategoryClick = (category) => {
+    playSound(); // Play sound on click
+    setActiveCategory(category);
   };
 
 
@@ -300,9 +397,9 @@ const App = () => {
       email: 'caioj.m.h.r@gmail.com',
       phone: '+55 27 99716-3172', // Updated phone number
       address: 'Rua João José de Souza, 61, 29047-312',
-      profilePicture: 'https://placehold.co/128x128/333333/FFFFFF?text=CR', // User profile picture (placeholder URL)
+      profilePicture: 'https://github.com/CaioRibeir1/ciocrr/raw/refs/heads/main/src/perfil', // Updated profile picture URL
     },
-    summary: 'Estagiário na área de TI, com experiência em infraestrutura, design e programação. Possuo vivência em suporte técnico de hardware e software, gerenciamento de redes, atendimento ao público e organização administrativa.',
+    summary: 'Profissional de TI versátil e proativo, com experiência consolidada em infraestrutura, design e programação. Possuo um histórico comprovado em suporte técnico de hardware e software, gerenciamento eficiente de redes, e expertise em atendimento ao público, combinada com sólida organização administrativa. Busco aplicar minhas habilidades multifacetadas para otimizar processos e impulsionar resultados em um ambiente desafiador.',
     experience: [
       {
         duration: 'Janeiro 2021 - Dezembro 2021',
@@ -331,10 +428,10 @@ const App = () => {
     ],
     education: [
       {
-        level: 'Ensino Médio completo',
+        level: 'Ensino Médio completo - EEM Irmã Maria Horta',
       },
       {
-        level: 'Ensino Superior incompleto em Análise e Desenvolvimento de Sistemas',
+        level: 'Análise e Desenvolvimento de Sistemas - Incompleto',
       },
     ],
     // Categorizing skills
@@ -477,7 +574,7 @@ const App = () => {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: 'url("https://github.com/CaioRibeir1/ciocrr/blob/main/backgroundsite.png?raw=true")', // Substituído o placeholder pelo URL fornecido
+          backgroundImage: 'url("https://github.com/CaioRibeir1/ciocrr/blob/main/backgroundsite.png?raw=true")', // URL da imagem de fundo
           filter: 'blur(8px)', // Ajuste o valor para mais ou menos desfoque
           WebkitFilter: 'blur(8px)', // Para compatibilidade com navegadores Webkit (Chrome, Safari)
           zIndex: -2, // Abaixo do overlay e do conteúdo principal
@@ -490,7 +587,7 @@ const App = () => {
 
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Press+Start+2P&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
           body {
             font-family: 'Inter', sans-serif;
             margin: 0; /* Garante que não haja margens extras no body */
@@ -510,137 +607,307 @@ const App = () => {
               display: none;
             }
           }
+
+          /* Keyframes para a animação de slide/fade do carrossel */
+          @keyframes slideInFromRight {
+            from {
+              opacity: 0;
+              transform: translateX(100%);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+
+          @keyframes slideOutToLeft {
+            from {
+              opacity: 1;
+              transform: translateX(0);
+            }
+            to {
+              opacity: 0;
+              transform: translateX(-100%);
+            }
+          }
+
+          @keyframes slideInFromLeft {
+            from {
+              opacity: 0;
+              transform: translateX(-100%);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+
+          @keyframes slideOutToRight {
+            from {
+              opacity: 1;
+              transform: translateX(0);
+            }
+            to {
+              opacity: 0;
+              transform: translateX(100%);
+            }
+          }
+
+          .carousel-slide-enter-active {
+            animation: slideInFromRight 0.3s forwards ease-out; /* Duração ajustada para mais fluidez */
+          }
+
+          .carousel-slide-exit-active {
+            animation: slideOutToLeft 0.3s forwards ease-out; /* Duração ajustada para mais fluidez */
+          }
+
+          .carousel-slide-prev-enter-active {
+            animation: slideInFromLeft 0.3s forwards ease-out; /* Duração ajustada para mais fluidez */
+          }
+
+          .carousel-slide-prev-exit-active {
+            animation: slideOutToRight 0.3s forwards ease-out; /* Duração ajustada para mais fluidez */
+          }
+
+          /* Animação para o visualizador de PDF (transição de altura e opacidade) */
+          .pdf-viewer-transition {
+            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+          }
+          .pdf-viewer-hidden {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden; /* Oculta conteúdo que ultrapassa durante o colapso */
+          }
+          .pdf-viewer-visible {
+            max-height: 500px; /* Altura máxima para o PDF */
+            opacity: 1;
+            overflow: visible; /* Permite que o conteúdo seja visível */
+          }
+
+          .pixel-font {
+            font-family: 'Press Start 2P', cursive;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4); /* Sombra sutil */
+          }
+
+          .gamified-title-font {
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6); /* Sombra mais destacada */
+            font-weight: 700; /* Pode ser ajustado conforme a necessidade, 700 é bold */
+          }
+
+          .pixel-button {
+            position: relative;
+            border: none;
+            background-color: #facc15; /* yellow-500 */
+            color: black;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem; /* px-4 py-2 */
+            border-radius: 0.25rem; /* rounded-md */
+            box-shadow:
+              2px 2px 0px 0px black,    /* Bottom-right shadow (black border effect) */
+              -2px -2px 0px 0px rgba(255,255,255,0.5); /* Top-left highlight (lighter pixel effect) */
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out; /* Smooth transition for interaction */
+          }
+
+          .pixel-button:hover {
+            transform: scale(1.05); /* Slight scale on hover */
+          }
+
+          .pixel-button:active {
+            transform: translate(2px, 2px); /* Simulates pressing the button down */
+            box-shadow:
+              0px 0px 0px 0px black,   /* Remove bottom-right shadow */
+              0px 0px 0px 0px rgba(255,255,255,0.5), /* Remove top-left highlight */
+              inset 2px 2px 0px 0px rgba(0,0,0,0.5); /* Inner shadow for pressed effect */
+          }
+
+          @keyframes pixel-pulse {
+            0% {
+              box-shadow: 4px 4px 0px 0px black, -4px -4px 0px 0px rgba(255,255,255,0.5);
+            }
+            50% {
+              box-shadow: 4px 4px 0px 0px black, -4px -4px 0px 0px rgba(255,255,255,0.8), 0 0 10px rgba(168, 85, 247, 0.7); /* Purple glow */
+            }
+            100% {
+              box-shadow: 4px 4px 0px 0px black, -4px -4px 0px 0px rgba(255,255,255,0.5);
+            }
+          }
+
+          .eight-bit-frame {
+            box-shadow: 4px 4px 0px 0px black, -4px -4px 0px 0px rgba(255,255,255,0.5);
+            border-radius: 8px; /* Slight rounding for the pixel art block itself */
+            animation: pixel-pulse 2s infinite alternate; /* Apply animation */
+          }
+
+          /* New styles for gray gradient arrows */
+          .gray-gradient-arrow {
+            background: linear-gradient(145deg, #a0a0a0, #606060); /* Medium to dark gray gradient */
+            color: white; /* White arrow color for contrast */
+          }
+          .gray-gradient-arrow:hover {
+            background: linear-gradient(145deg, #b0b0b0, #707070); /* Slightly lighter on hover */
+          }
+          .gray-gradient-arrow:active {
+            background: linear-gradient(145deg, #707070, #404040); /* Darker on active */
+          }
         `}
       </style>
       {/* Conteúdo Principal do Currículo */}
-      <div className="relative w-full max-w-4xl bg-indigo-900 rounded-lg shadow-xl p-6 sm:p-8 lg:p-10 z-10"> {/* Fundo do currículo em índigo escuro */}
+      <div className="relative w-full max-w-4xl bg-indigo-900 border-4 border-purple-500 eight-bit-frame p-6 sm:p-8 lg:p-10 z-10"> {/* Fundo do currículo em índigo escuro, com borda 8-bit e animação */}
         {/* PDF Download Button - visible only on screen, not on print */}
         <div className="flex justify-end mb-6 no-print">
           <button
             onClick={handleDownloadPdfComplete}
-            className="bg-yellow-500 text-black font-bold py-2 px-4 rounded-md shadow-lg hover:bg-yellow-400 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-opacity-75"
+            className="pixel-button"
           >
             Baixar PDF
           </button>
         </div>
 
-        {/* Profile Picture */}
+        {/* Profile Picture with 8-bit Frame and Hover Animation */}
         <div className="flex justify-center mb-6">
-          <img
-            src={resumeData.personalInfo.profilePicture}
-            alt="Caio Ribeiro"
-            className="w-32 h-32 rounded-full border-4 border-purple-500 shadow-lg object-cover" // Borda em tom de roxo
-            onError={(e) => {
-              e.target.onerror = null; // Prevents infinite loop if fallback fails
-              e.target.src = 'https://placehold.co/128x128/333333/FFFFFF?text=CR'; // Placeholder image
-            }}
-          />
+          <div className="relative w-32 h-32 border-4 border-purple-500 eight-bit-frame">
+            <img
+              src={resumeData.personalInfo.profilePicture}
+              alt="Caio Ribeiro"
+              className="w-full h-full object-cover transition-transform duration-300 ease-in-out hover:scale-105" // Image now fills the square container and has hover
+              onError={(e) => {
+                e.target.onerror = null; // Prevents infinite loop if fallback fails
+                e.target.src = 'https://placehold.co/128x128/333333/FFFFFF?text=CR'; // Placeholder image
+              }}
+            />
+          </div>
         </div>
 
         <h1 className="text-4xl sm:text-5xl font-bold text-center text-white mb-6 sm:mb-8">{resumeData.personalInfo.display_name}</h1>
 
-        {/* Professional Summary */}
-        <section className="mb-8">
-          <h2 className="text-2xl resume-section-title flex items-center">
-            <UserIcon /> Resumo Profissional
-          </h2>
-          <p className="text-indigo-200 leading-relaxed text-sm sm:text-base">
-            {resumeData.summary}
-          </p>
-        </section>
-
         {/* Personal Information */}
         <section className="mb-8">
-          <h2 className="text-2xl resume-section-title flex items-center">
+          <h2 className="text-2xl resume-section-title flex items-center pixel-font"> {/* Aplicando a nova fonte e sombra aqui */}
             <UserIcon /> Informações Pessoais
           </h2>
           <ul className="text-indigo-200 space-y-2 text-sm sm:text-base">
             <li><UserIcon /> <strong className="text-white">Nome:</strong> {resumeData.personalInfo.name}</li>
-            <li><MailIcon /> <strong className="text-white">Email:</strong> {resumeData.personalInfo.email}</li>
-            <li><PhoneIcon /> <strong className="text-white">Telefone:</strong> {resumeData.personalInfo.phone}</li>
-            <li><HomeIcon /> <strong className="text-white">Endereço:</strong> {resumeData.personalInfo.address}</li>
+            <li><HomeIcon /> <strong className="text-white">Endereço:</strong> {resumeData.personalInfo.address}</li> {/* Endereço movido */}
+            <li className="flex items-center">
+              <MailIcon /> <strong className="text-white">Email:</strong> {resumeData.personalInfo.email}
+              <a
+                href={`mailto:${resumeData.personalInfo.email}`}
+                onClick={playSound} // Play sound on click
+                className="ml-3 bg-yellow-500 text-black px-2 py-1 rounded-md text-xs font-bold shadow-sm hover:bg-yellow-400 transition duration-300 ease-in-out flex items-center"
+                aria-label="Enviar E-mail"
+              >
+                <MailIcon className="mr-1" /> Enviar E-mail
+              </a>
+            </li>
+            <li className="flex items-center">
+              <PhoneIcon /> <strong className="text-white">Telefone:</strong> {resumeData.personalInfo.phone}
+              <button
+                onClick={() => copyToClipboard(resumeData.personalInfo.phone)}
+                className="ml-3 bg-yellow-500 text-black px-2 py-1 rounded-md text-xs font-bold shadow-sm hover:bg-yellow-400 transition duration-300 ease-in-out flex items-center"
+                aria-label="Copiar Telefone"
+              >
+                <CopyIcon className="mr-1" /> Copiar Telefone
+              </button>
+            </li>
           </ul>
+        </section>
+
+        {/* Professional Summary */}
+        <section className="mb-8">
+          <h2 className="text-2xl resume-section-title flex items-center pixel-font"> {/* Aplicando a nova fonte e sombra aqui */}
+            <UserIcon /> Resumo Profissional
+          </h2>
+          <p className="text-indigo-200 leading-relaxed text-sm sm:text-base font-bold">
+            {resumeData.summary}
+          </p>
         </section>
 
         {/* Professional Experience */}
         <section className="mb-8">
-          <h2 className="text-2xl resume-section-title flex items-center">
+          <h2 className="text-2xl resume-section-title flex items-center pixel-font"> {/* Aplicando a nova fonte e sombra aqui */}
             <BriefcaseIcon /> Experiência Profissional
           </h2>
           {resumeData.experience.map((job, index) => (
-            <div key={index} className="mb-6 last:mb-0 p-4 bg-indigo-800 rounded-md shadow-inner">
-              <h3 className="text-xl font-semibold text-white">{job.title}</h3>
-              <p className="text-indigo-300 text-sm italic">{job.company} - {job.duration}</p>
-              <p className="text-indigo-200 mt-2 text-sm sm:text-base">{job.description}</p>
+            <div key={index} className="mb-6 last:mb-0 p-4 bg-gradient-to-r from-yellow-300 to-yellow-500 rounded-md shadow-lg shadow-purple-600/20 border-2 border-black transition-transform duration-300 ease-in-out hover:scale-105">
+              <h3 className="text-xl font-semibold text-black gamified-title-font">{job.title}</h3> {/* Aplicado gamified-title-font aqui */}
+              <p className="text-yellow-800 text-sm italic">{job.company} - {job.duration}</p>
+              <p className="text-yellow-900 mt-2 text-sm sm:text-base">{job.description}</p>
             </div>
           ))}
         </section>
 
         {/* Courses - PDF Carousel */}
         <section className="mb-8">
-          <h2 className="text-2xl resume-section-title flex items-center">
+          <h2 className="text-2xl resume-section-title flex items-center pixel-font"> {/* Aplicando a nova fonte e sombra aqui */}
             <AwardIcon /> Cursos e Certificados
           </h2>
           {coursesData.length > 0 ? (
-            <div className="relative bg-indigo-800 rounded-lg shadow-md p-6 border border-indigo-700">
+            <div className="relative bg-indigo-800 rounded-lg shadow-md p-6 border border-indigo-700 overflow-hidden">
               {currentCourse && (
-                <>
-                  {/* Icon in top-left corner - increased size and margin */}
-                  <div className="absolute top-4 left-4 text-white" style={{ fontSize: '2.5rem' }}>
-                    {CurrentCourseIcon && <CurrentCourseIcon />}
-                  </div>
-                  <h3 className="text-3xl font-semibold text-white mb-2 text-center">
-                    {currentCourse.title}
-                  </h3>
-                  <p className="text-indigo-300 italic mb-1 text-center">{currentCourse.institution} - {currentCourse.date}</p>
-                  <p className="text-indigo-400 text-sm mb-4 text-center">{currentCourse.hours}</p>
-                  <p className="text-indigo-200 leading-relaxed mb-4 text-center">{currentCourse.description}</p>
+                <div key={currentCourse.id} className={`
+                  ${isAnimatingCarousel
+                    ? (slideDirection === 'next' ? 'carousel-slide-exit-active' : 'carousel-slide-prev-exit-active')
+                    : (slideDirection === 'next' ? 'carousel-slide-enter-active' : 'carousel-slide-prev-enter-active')
+                  }
+                `}>
+                  {/* Conteúdo principal do curso (onde as setas se centralizarão) */}
+                  <div className="relative"> {/* Este div é o novo wrapper para o conteúdo do curso e as setas */}
+                    {/* Removido o Icon para cada curso individualmente. O ícone principal da seção permanece. */}
+                    <h3 className="text-3xl font-semibold text-white mb-2 text-center gamified-title-font"> {/* Aplicado gamified-title-font aqui */}
+                      {currentCourse.title}
+                    </h3>
+                    <p className="text-indigo-300 italic mb-1 text-center">{currentCourse.institution} - {currentCourse.date}</p>
+                    <p className="text-indigo-400 text-sm mb-4 text-center">{currentCourse.hours}</p>
+                    <p className="text-indigo-200 leading-relaxed mb-4 text-center">{currentCourse.description}</p>
 
-                  {/* Button to toggle PDF visibility */}
-                  <div className="flex justify-center mb-4 no-print">
-                    <button
-                      onClick={togglePdfVisibility}
-                      className="bg-yellow-500 text-black font-bold py-2 px-4 rounded-md shadow-lg hover:bg-yellow-400 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-opacity-75"
-                    >
-                      {showPdfInCarousel ? 'Ocultar Certificado' : 'Visualizar Certificado'}
-                    </button>
-                  </div>
-
-                  {/* PDF Viewer (conditional) */}
-                  {showPdfInCarousel && currentCourse.pdf && (
-                    <div className="mt-4 flex justify-center w-full" style={{ height: '500px' }}>
-                      <iframe
-                        src={currentCourse.pdf}
-                        title={`Certificado de ${currentCourse.title}`}
-                        width="100%"
-                        height="100%"
-                        frameBorder="0"
-                        className="rounded-md shadow-md"
-                        allowFullScreen
-                        sandbox="allow-scripts allow-same-origin allow-presentation"
+                    {/* Button to toggle PDF visibility */}
+                    <div className="flex justify-center mb-4 no-print">
+                      <button
+                        onClick={togglePdfVisibility}
+                        className="pixel-button"
                       >
-                        <p className="text-pink-300">Seu navegador não suporta iframes, ou o PDF não pode ser carregado.</p>
-                      </iframe>
+                        {showPdfInCarousel ? 'Ocultar Certificado' : 'Visualizar Certificado'}
+                      </button>
                     </div>
-                  )}
-                </>
+
+                    {/* Carousel Navigation Buttons - Agora posicionados absolutamente dentro deste wrapper interno */}
+                    <button
+                      onClick={goToPreviousCourse}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full shadow-xl shadow-purple-600/50 border-2 border-black transition-all duration-150 ease-in-out hover:scale-110 active:scale-95 no-print gray-gradient-arrow"
+                      aria-label="Curso Anterior"
+                    >
+                      &#10094; {/* Left arrow */}
+                    </button>
+                    <button
+                      onClick={goToNextCourse}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full shadow-xl shadow-purple-600/50 border-2 border-black transition-all duration-150 ease-in-out hover:scale-110 active:scale-95 no-print gray-gradient-arrow"
+                      aria-label="Próximo Curso"
+                    >
+                      &#10095; {/* Right arrow */}
+                    </button>
+                  </div> {/* Fim do course-content-wrapper */}
+
+                  {/* PDF Viewer (conditional rendering changed to class-based for animation) */}
+                  <div className={`mt-4 flex justify-center w-full pdf-viewer-transition
+                    ${showPdfInCarousel ? 'pdf-viewer-visible' : 'pdf-viewer-hidden'}`}
+                  >
+                    <iframe
+                      src={currentCourse.pdf}
+                      title={`Certificado de ${currentCourse.title}`}
+                      width="100%"
+                      height="500px" // Fixed height for the iframe content
+                      frameBorder="0"
+                      className="rounded-md shadow-md"
+                      allowFullScreen
+                      sandbox="allow-scripts allow-same-origin allow-presentation"
+                    >
+                      <p className="text-pink-300">Seu navegador não suporta iframes, ou o PDF não pode ser carregado.</p>
+                    </iframe>
+                  </div>
+                </div>
               )}
-              {/* Carousel Navigation Buttons */}
-              <button
-                onClick={goToPreviousCourse}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-yellow-500 text-black p-2 rounded-full shadow-lg hover:bg-yellow-400 transition duration-300 no-print"
-                aria-label="Curso Anterior"
-              >
-                &#10094; {/* Left arrow */}
-              </button>
-              <button
-                onClick={goToNextCourse}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-yellow-500 text-black p-2 rounded-full shadow-lg hover:bg-yellow-400 transition duration-300 no-print"
-                aria-label="Próximo Curso"
-              >
-                &#10095; {/* Right arrow */}
-              </button>
-              {/* Page counter */}
+              {/* Page counter (ainda dentro do container principal da seção de cursos) */}
               <p className="text-center text-indigo-400 mt-4 text-sm no-print">
                 Curso {currentCourseIndex + 1} de {coursesData.length}
               </p>
@@ -652,19 +919,21 @@ const App = () => {
 
         {/* Education (AGORA ABAIXO DE CURSOS E CERTIFICADOS) */}
         <section className="mb-8">
-          <h2 className="text-2xl resume-section-title flex items-center">
+          <h2 className="text-2xl resume-section-title flex items-center pixel-font"> {/* Aplicando a nova fonte e sombra aqui */}
             <BookOpenIcon /> Educação
           </h2>
           <ul className="text-indigo-200 space-y-2 text-sm sm:text-base">
             {resumeData.education.map((edu, index) => (
-              <li key={index} className="p-2 bg-indigo-800 rounded-md shadow-inner"><BookOpenIcon />{edu.level}</li>
+              <li key={index} className="p-2 bg-indigo-800 rounded-md shadow-inner">
+                <span className="text-indigo-200 font-bold">{edu.level}</span> {/* Adicionado font-bold aqui */}
+              </li>
             ))}
           </ul>
         </section>
 
         {/* Skills by Category */}
         <section className="mb-8">
-          <h2 className="text-2xl resume-section-title flex items-center">
+          <h2 className="text-2xl resume-section-title flex items-center pixel-font"> {/* Aplicando a nova fonte e sombra aqui */}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
               <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z"></path>
             </svg>
@@ -674,10 +943,10 @@ const App = () => {
             {Object.keys(resumeData.skillCategories).map((category) => (
               <button
                 key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`px-4 py-2 rounded-full font-medium transition duration-300 ease-in-out
+                onClick={() => handleSkillCategoryClick(category)} // Use new handler
+                className={`px-4 py-2 rounded-full font-medium shadow-md shadow-purple-600/50 border-2 border-black transition-all duration-150 ease-in-out hover:scale-105 active:scale-95
                   ${activeCategory === category
-                    ? 'bg-yellow-500 text-black shadow-md' // Amarelo para botão ativo
+                    ? 'bg-yellow-500 text-black' // Amarelo para botão ativo
                     : 'bg-yellow-600 text-black hover:bg-yellow-500' // Amarelo para botões inativos e hover
                   }`}
               >
@@ -690,10 +959,12 @@ const App = () => {
             {resumeData.skillCategories[activeCategory].map((skill, index) => {
               const IconComponent = IconComponents[skill.icon];
               return (
-                <div key={index} className="flex items-center bg-white p-3 rounded-md shadow-inner"> {/* Fundo branco para os retângulos das habilidades */}
-                  {IconComponent && <IconComponent className="text-black" />} {/* Ícone preto */}
-                  <span className="font-medium text-black">{skill.name}:</span> {/* Texto preto */}
-                  <span className="ml-2 text-black">{skill.level}</span> {/* Texto preto */}
+                <div key={index} className="flex items-center justify-between bg-gradient-to-r from-gray-200 to-gray-400 p-3 rounded-md shadow-inner"> {/* Fundo cinza claro degradê com animação */}
+                  <div className="flex items-center">
+                    {IconComponent && <IconComponent className="text-black" />} {/* Ícone preto */}
+                    <span className="font-bold text-black">{skill.name}:</span> {/* Texto preto e negrito */}
+                  </div>
+                  <span className="ml-2 text-gray-700">{skill.level}</span> {/* Texto cinza escuro, alinhado à direita */}
                 </div>
               );
             })}
