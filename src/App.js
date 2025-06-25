@@ -174,7 +174,7 @@ const App = () => {
 
   const FileTextIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
-      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 = 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
       <polyline points="14 2 14 8 20 8"></polyline>
       <line x1="16" y1="13" x2="8" y2="13"></line>
       <line x1="16" y1="17" x2="8" y2="17"></line>
@@ -473,11 +473,11 @@ const App = () => {
 
   return (
     <div className="relative min-h-screen font-inter flex flex-col items-center justify-center overflow-hidden">
-      {/* Imagem de Fundo Borrada (apenas o fundo) */}
+      {/* Imagem de Fundo Borrada */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: 'url("https://github.com/CaioRibeir1/ciocrr/blob/main/backgroundsite.png?raw=true")', // <<<<< COLOQUE AQUI A URL DA SUA IMAGEM
+          backgroundImage: 'url("https://github.com/CaioRibeir1/ciocrr/blob/main/backgroundsite.png?raw=true")', // Substitua SUA_IMAGEM_AQUI.jpg pelo URL da sua imagem
           filter: 'blur(8px)', // Ajuste o valor para mais ou menos desfoque
           WebkitFilter: 'blur(8px)', // Para compatibilidade com navegadores Webkit (Chrome, Safari)
           zIndex: -2, // Abaixo do overlay e do conteúdo principal
@@ -485,8 +485,8 @@ const App = () => {
         }}
       ></div>
 
-      {/* Overlay para tornar o fundo menos escuro e melhorar a legibilidade */}
-      <div className="absolute inset-0 bg-black opacity-60 z-[-1]"></div> {/* Opacidade reduzida para 60% */}
+      {/* Overlay para suavizar o fundo e melhorar a legibilidade do texto */}
+      <div className="absolute inset-0 bg-indigo-950 opacity-50 z-[-1]"></div> {/* Opacidade ajustada para 50% para escurecer em no máximo 10% */}
 
       <style>
         {`
@@ -499,7 +499,7 @@ const App = () => {
             font-weight: 600; /* Semi-bold for titles */
             color: #E0E0E0; /* Light gray for section titles */
             padding-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(112, 112, 112, 0.5); /* Medium gray border */
+            border-bottom: 1px solid rgba(100, 50, 150, 0.5); /* Tom de roxo mais claro para a borda do título */
             margin-bottom: 1.5rem;
           }
           .icon-spacing {
@@ -513,12 +513,12 @@ const App = () => {
         `}
       </style>
       {/* Conteúdo Principal do Currículo */}
-      <div className="relative w-full max-w-4xl bg-black rounded-lg shadow-xl p-6 sm:p-8 lg:p-10 z-10">
+      <div className="relative w-full max-w-4xl bg-indigo-900 rounded-lg shadow-xl p-6 sm:p-8 lg:p-10 z-10"> {/* Fundo do currículo em índigo escuro */}
         {/* PDF Download Button - visible only on screen, not on print */}
         <div className="flex justify-end mb-6 no-print">
           <button
             onClick={handleDownloadPdfComplete}
-            className="bg-neutral-800 text-white font-bold py-2 px-4 rounded-md shadow-lg hover:bg-neutral-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:ring-opacity-75"
+            className="bg-yellow-500 text-black font-bold py-2 px-4 rounded-md shadow-lg hover:bg-yellow-400 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-opacity-75"
           >
             Baixar PDF
           </button>
@@ -529,7 +529,7 @@ const App = () => {
           <img
             src={resumeData.personalInfo.profilePicture}
             alt="Caio Ribeiro"
-            className="w-32 h-32 rounded-full border-4 border-neutral-700 shadow-lg object-cover"
+            className="w-32 h-32 rounded-full border-4 border-purple-500 shadow-lg object-cover" // Borda em tom de roxo
             onError={(e) => {
               e.target.onerror = null; // Prevents infinite loop if fallback fails
               e.target.src = 'https://placehold.co/128x128/333333/FFFFFF?text=CR'; // Placeholder image
@@ -544,7 +544,7 @@ const App = () => {
           <h2 className="text-2xl resume-section-title flex items-center">
             <UserIcon /> Resumo Profissional
           </h2>
-          <p className="text-gray-300 leading-relaxed text-sm sm:text-base">
+          <p className="text-indigo-200 leading-relaxed text-sm sm:text-base">
             {resumeData.summary}
           </p>
         </section>
@@ -554,7 +554,7 @@ const App = () => {
           <h2 className="text-2xl resume-section-title flex items-center">
             <UserIcon /> Informações Pessoais
           </h2>
-          <ul className="text-gray-300 space-y-2 text-sm sm:text-base">
+          <ul className="text-indigo-200 space-y-2 text-sm sm:text-base">
             <li><UserIcon /> <strong className="text-white">Nome:</strong> {resumeData.personalInfo.name}</li>
             <li><MailIcon /> <strong className="text-white">Email:</strong> {resumeData.personalInfo.email}</li>
             <li><PhoneIcon /> <strong className="text-white">Telefone:</strong> {resumeData.personalInfo.phone}</li>
@@ -568,21 +568,21 @@ const App = () => {
             <BriefcaseIcon /> Experiência Profissional
           </h2>
           {resumeData.experience.map((job, index) => (
-            <div key={index} className="mb-6 last:mb-0 p-4 bg-neutral-800 rounded-md shadow-inner">
+            <div key={index} className="mb-6 last:mb-0 p-4 bg-indigo-800 rounded-md shadow-inner">
               <h3 className="text-xl font-semibold text-white">{job.title}</h3>
-              <p className="text-gray-400 text-sm italic">{job.company} - {job.duration}</p>
-              <p className="text-gray-300 mt-2 text-sm sm:text-base">{job.description}</p>
+              <p className="text-indigo-300 text-sm italic">{job.company} - {job.duration}</p>
+              <p className="text-indigo-200 mt-2 text-sm sm:text-base">{job.description}</p>
             </div>
           ))}
         </section>
 
-        {/* Courses - PDF Carousel (AGORA ABAIXO DA EXPERIÊNCIA PROFISSIONAL) */}
+        {/* Courses - PDF Carousel */}
         <section className="mb-8">
           <h2 className="text-2xl resume-section-title flex items-center">
             <AwardIcon /> Cursos e Certificados
           </h2>
           {coursesData.length > 0 ? (
-            <div className="relative bg-neutral-800 rounded-lg shadow-md p-6 border border-neutral-700">
+            <div className="relative bg-indigo-800 rounded-lg shadow-md p-6 border border-indigo-700">
               {currentCourse && (
                 <>
                   {/* Icon in top-left corner - increased size and margin */}
@@ -592,15 +592,15 @@ const App = () => {
                   <h3 className="text-3xl font-semibold text-white mb-2 text-center">
                     {currentCourse.title}
                   </h3>
-                  <p className="text-gray-300 italic mb-1 text-center">{currentCourse.institution} - {currentCourse.date}</p>
-                  <p className="text-gray-400 text-sm mb-4 text-center">{currentCourse.hours}</p>
-                  <p className="text-gray-300 leading-relaxed mb-4 text-center">{currentCourse.description}</p>
+                  <p className="text-indigo-300 italic mb-1 text-center">{currentCourse.institution} - {currentCourse.date}</p>
+                  <p className="text-indigo-400 text-sm mb-4 text-center">{currentCourse.hours}</p>
+                  <p className="text-indigo-200 leading-relaxed mb-4 text-center">{currentCourse.description}</p>
 
                   {/* Button to toggle PDF visibility */}
                   <div className="flex justify-center mb-4 no-print">
                     <button
                       onClick={togglePdfVisibility}
-                      className="bg-neutral-700 text-white font-bold py-2 px-4 rounded-md shadow-lg hover:bg-neutral-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-opacity-75"
+                      className="bg-yellow-500 text-black font-bold py-2 px-4 rounded-md shadow-lg hover:bg-yellow-400 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-opacity-75"
                     >
                       {showPdfInCarousel ? 'Ocultar Certificado' : 'Visualizar Certificado'}
                     </button>
@@ -619,7 +619,7 @@ const App = () => {
                         allowFullScreen
                         sandbox="allow-scripts allow-same-origin allow-presentation"
                       >
-                        <p className="text-red-400">Seu navegador não suporta iframes, ou o PDF não pode ser carregado.</p>
+                        <p className="text-pink-300">Seu navegador não suporta iframes, ou o PDF não pode ser carregado.</p>
                       </iframe>
                     </div>
                   )}
@@ -628,25 +628,25 @@ const App = () => {
               {/* Carousel Navigation Buttons */}
               <button
                 onClick={goToPreviousCourse}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-neutral-700 text-white p-2 rounded-full shadow-lg hover:bg-neutral-600 transition duration-300 no-print"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-yellow-500 text-black p-2 rounded-full shadow-lg hover:bg-yellow-400 transition duration-300 no-print"
                 aria-label="Curso Anterior"
               >
                 &#10094; {/* Left arrow */}
               </button>
               <button
                 onClick={goToNextCourse}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-neutral-700 text-white p-2 rounded-full shadow-lg hover:bg-neutral-600 transition duration-300 no-print"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-yellow-500 text-black p-2 rounded-full shadow-lg hover:bg-yellow-400 transition duration-300 no-print"
                 aria-label="Próximo Curso"
               >
                 &#10095; {/* Right arrow */}
               </button>
               {/* Page counter */}
-              <p className="text-center text-gray-400 mt-4 text-sm no-print">
+              <p className="text-center text-indigo-400 mt-4 text-sm no-print">
                 Curso {currentCourseIndex + 1} de {coursesData.length}
               </p>
             </div>
           ) : (
-            <p className="text-gray-300 text-center">Nenhum curso adicionado ainda.</p>
+            <p className="text-indigo-200 text-center">Nenhum curso adicionado ainda.</p>
           )}
         </section>
 
@@ -655,9 +655,9 @@ const App = () => {
           <h2 className="text-2xl resume-section-title flex items-center">
             <BookOpenIcon /> Educação
           </h2>
-          <ul className="text-gray-300 space-y-2 text-sm sm:text-base">
+          <ul className="text-indigo-200 space-y-2 text-sm sm:text-base">
             {resumeData.education.map((edu, index) => (
-              <li key={index} className="p-2 bg-neutral-800 rounded-md shadow-inner"><BookOpenIcon />{edu.level}</li>
+              <li key={index} className="p-2 bg-indigo-800 rounded-md shadow-inner"><BookOpenIcon />{edu.level}</li>
             ))}
           </ul>
         </section>
@@ -677,8 +677,8 @@ const App = () => {
                 onClick={() => setActiveCategory(category)}
                 className={`px-4 py-2 rounded-full font-medium transition duration-300 ease-in-out
                   ${activeCategory === category
-                    ? 'bg-neutral-700 text-white shadow-md' // Darker gray for active button
-                    : 'bg-neutral-800 text-gray-300 hover:bg-neutral-700'
+                    ? 'bg-yellow-500 text-black shadow-md' // Amarelo para botão ativo
+                    : 'bg-yellow-600 text-black hover:bg-yellow-500' // Amarelo para botões inativos e hover
                   }`}
               >
                 {category}
@@ -690,10 +690,10 @@ const App = () => {
             {resumeData.skillCategories[activeCategory].map((skill, index) => {
               const IconComponent = IconComponents[skill.icon];
               return (
-                <div key={index} className="flex items-center bg-neutral-800 p-3 rounded-md shadow-inner">
-                  {IconComponent && <IconComponent />}
-                  <span className="font-medium text-white">{skill.name}:</span>
-                  <span className="ml-2 text-gray-300">{skill.level}</span>
+                <div key={index} className="flex items-center bg-white p-3 rounded-md shadow-inner"> {/* Fundo branco para os retângulos das habilidades */}
+                  {IconComponent && <IconComponent className="text-black" />} {/* Ícone preto */}
+                  <span className="font-medium text-black">{skill.name}:</span> {/* Texto preto */}
+                  <span className="ml-2 text-black">{skill.level}</span> {/* Texto preto */}
                 </div>
               );
             })}
