@@ -84,7 +84,7 @@ const App = () => {
 
   const FolderIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
-      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 = 0 1 2 2z"></path>
     </svg>
   );
 
@@ -300,7 +300,7 @@ const App = () => {
       email: 'caioj.m.h.r@gmail.com',
       phone: '+55 27 99716-3172', // Updated phone number
       address: 'Rua João José de Souza, 61, 29047-312',
-      profilePicture: 'https://github.com/CaioRibeir1/ciocrr/raw/refs/heads/main/src/perfil', // User profile picture (placeholder URL)
+      profilePicture: 'https://placehold.co/128x128/333333/FFFFFF?text=CR', // User profile picture (placeholder URL)
     },
     summary: 'Estagiário na área de TI, com experiência em infraestrutura, design e programação. Possuo vivência em suporte técnico de hardware e software, gerenciamento de redes, atendimento ao público e organização administrativa.',
     experience: [
@@ -472,12 +472,28 @@ const App = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 font-inter p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-center">
+    <div className="relative min-h-screen font-inter flex flex-col items-center justify-center overflow-hidden">
+      {/* Imagem de Fundo Borrada (apenas o fundo) */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: 'url("https://github.com/CaioRibeir1/ciocrr/blob/main/backgroundsite.png?raw=true")', // <<<<< COLOQUE AQUI A URL DA SUA IMAGEM
+          filter: 'blur(8px)', // Ajuste o valor para mais ou menos desfoque
+          WebkitFilter: 'blur(8px)', // Para compatibilidade com navegadores Webkit (Chrome, Safari)
+          zIndex: -2, // Abaixo do overlay e do conteúdo principal
+          transform: 'scale(1.05)', // Pequeno zoom para evitar bordas brancas após o blur
+        }}
+      ></div>
+
+      {/* Overlay para tornar o fundo mais escuro (quase preto) e melhorar a legibilidade */}
+      <div className="absolute inset-0 bg-black opacity-95 z-[-1]"></div> {/* Aumentei a opacidade para 95% para ser quase totalmente preto */}
+
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
           body {
             font-family: 'Inter', sans-serif;
+            margin: 0; /* Garante que não haja margens extras no body */
           }
           .resume-section-title {
             font-weight: 600; /* Semi-bold for titles */
@@ -496,12 +512,13 @@ const App = () => {
           }
         `}
       </style>
-      <div className="w-full max-w-4xl bg-gray-800 rounded-lg shadow-xl p-6 sm:p-8 lg:p-10">
+      {/* Conteúdo Principal do Currículo */}
+      <div className="relative w-full max-w-4xl bg-black rounded-lg shadow-xl p-6 sm:p-8 lg:p-10 z-10"> {/* Alterado para bg-black */}
         {/* PDF Download Button - visible only on screen, not on print */}
         <div className="flex justify-end mb-6 no-print">
           <button
             onClick={handleDownloadPdfComplete}
-            className="bg-gray-700 text-white font-bold py-2 px-4 rounded-md shadow-lg hover:bg-gray-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
+            className="bg-neutral-800 text-white font-bold py-2 px-4 rounded-md shadow-lg hover:bg-neutral-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:ring-opacity-75"
           >
             Baixar PDF
           </button>
@@ -512,7 +529,7 @@ const App = () => {
           <img
             src={resumeData.personalInfo.profilePicture}
             alt="Caio Ribeiro"
-            className="w-32 h-32 rounded-full border-4 border-gray-600 shadow-lg object-cover"
+            className="w-32 h-32 rounded-full border-4 border-neutral-700 shadow-lg object-cover"
             onError={(e) => {
               e.target.onerror = null; // Prevents infinite loop if fallback fails
               e.target.src = 'https://placehold.co/128x128/333333/FFFFFF?text=CR'; // Placeholder image
@@ -551,7 +568,7 @@ const App = () => {
             <BriefcaseIcon /> Experiência Profissional
           </h2>
           {resumeData.experience.map((job, index) => (
-            <div key={index} className="mb-6 last:mb-0 p-4 bg-gray-700 rounded-md shadow-inner">
+            <div key={index} className="mb-6 last:mb-0 p-4 bg-neutral-800 rounded-md shadow-inner"> {/* Alterado para bg-neutral-800 */}
               <h3 className="text-xl font-semibold text-white">{job.title}</h3>
               <p className="text-gray-400 text-sm italic">{job.company} - {job.duration}</p>
               <p className="text-gray-300 mt-2 text-sm sm:text-base">{job.description}</p>
@@ -559,63 +576,13 @@ const App = () => {
           ))}
         </section>
 
-        {/* Education */}
-        <section className="mb-8">
-          <h2 className="text-2xl resume-section-title flex items-center">
-            <BookOpenIcon /> Educação
-          </h2>
-          <ul className="text-gray-300 space-y-2 text-sm sm:text-base">
-            {resumeData.education.map((edu, index) => (
-              <li key={index} className="p-2 bg-gray-700 rounded-md shadow-inner"><BookOpenIcon />{edu.level}</li>
-            ))}
-          </ul>
-        </section>
-
-        {/* Skills by Category */}
-        <section className="mb-8">
-          <h2 className="text-2xl resume-section-title flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
-              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z"></path>
-            </svg>
-            Habilidades
-          </h2>
-          <div className="flex flex-wrap gap-2 mb-6 no-print">
-            {Object.keys(resumeData.skillCategories).map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`px-4 py-2 rounded-full font-medium transition duration-300 ease-in-out
-                  ${activeCategory === category
-                    ? 'bg-gray-600 text-white shadow-md' // Darker gray for active button
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm sm:text-base">
-            {resumeData.skillCategories[activeCategory].map((skill, index) => {
-              const IconComponent = IconComponents[skill.icon];
-              return (
-                <div key={index} className="flex items-center bg-gray-700 p-3 rounded-md shadow-inner">
-                  {IconComponent && <IconComponent />}
-                  <span className="font-medium text-white">{skill.name}:</span>
-                  <span className="ml-2 text-gray-300">{skill.level}</span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Courses - PDF Carousel */}
-        <section>
+        {/* Courses - PDF Carousel (AGORA ABAIXO DA EXPERIÊNCIA PROFISSIONAL) */}
+        <section className="mb-8"> {/* Adicionado mb-8 para espaçamento */}
           <h2 className="text-2xl resume-section-title flex items-center">
             <AwardIcon /> Cursos e Certificados
           </h2>
           {coursesData.length > 0 ? (
-            <div className="relative bg-gray-700 rounded-lg shadow-md p-6 border border-gray-600">
+            <div className="relative bg-neutral-800 rounded-lg shadow-md p-6 border border-neutral-700"> {/* Alterado para bg-neutral-800 e border-neutral-700 */}
               {currentCourse && (
                 <>
                   {/* Icon in top-left corner - increased size and margin */}
@@ -633,7 +600,7 @@ const App = () => {
                   <div className="flex justify-center mb-4 no-print">
                     <button
                       onClick={togglePdfVisibility}
-                      className="bg-gray-600 text-white font-bold py-2 px-4 rounded-md shadow-lg hover:bg-gray-500 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
+                      className="bg-neutral-700 text-white font-bold py-2 px-4 rounded-md shadow-lg hover:bg-neutral-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-opacity-75"
                     >
                       {showPdfInCarousel ? 'Ocultar Certificado' : 'Visualizar Certificado'}
                     </button>
@@ -661,14 +628,14 @@ const App = () => {
               {/* Carousel Navigation Buttons */}
               <button
                 onClick={goToPreviousCourse}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-gray-600 text-white p-2 rounded-full shadow-lg hover:bg-gray-500 transition duration-300 no-print"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-neutral-700 text-white p-2 rounded-full shadow-lg hover:bg-neutral-600 transition duration-300 no-print"
                 aria-label="Curso Anterior"
               >
                 &#10094; {/* Left arrow */}
               </button>
               <button
                 onClick={goToNextCourse}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-600 text-white p-2 rounded-full shadow-lg hover:bg-gray-500 transition duration-300 no-print"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-neutral-700 text-white p-2 rounded-full shadow-lg hover:bg-neutral-600 transition duration-300 no-print"
                 aria-label="Próximo Curso"
               >
                 &#10095; {/* Right arrow */}
@@ -682,6 +649,57 @@ const App = () => {
             <p className="text-gray-300 text-center">Nenhum curso adicionado ainda.</p>
           )}
         </section>
+
+        {/* Education (AGORA ABAIXO DE CURSOS E CERTIFICADOS) */}
+        <section className="mb-8">
+          <h2 className="text-2xl resume-section-title flex items-center">
+            <BookOpenIcon /> Educação
+          </h2>
+          <ul className="text-gray-300 space-y-2 text-sm sm:text-base">
+            {resumeData.education.map((edu, index) => (
+              <li key={index} className="p-2 bg-neutral-800 rounded-md shadow-inner"><BookOpenIcon />{edu.level}</li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Skills by Category */}
+        <section className="mb-8">
+          <h2 className="text-2xl resume-section-title flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z"></path>
+            </svg>
+            Habilidades
+          </h2>
+          <div className="flex flex-wrap gap-2 mb-6 no-print">
+            {Object.keys(resumeData.skillCategories).map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`px-4 py-2 rounded-full font-medium transition duration-300 ease-in-out
+                  ${activeCategory === category
+                    ? 'bg-neutral-700 text-white shadow-md' // Darker gray for active button
+                    : 'bg-neutral-800 text-gray-300 hover:bg-neutral-700'
+                  }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm sm:text-base">
+            {resumeData.skillCategories[activeCategory].map((skill, index) => {
+              const IconComponent = IconComponents[skill.icon];
+              return (
+                <div key={index} className="flex items-center bg-neutral-800 p-3 rounded-md shadow-inner">
+                  {IconComponent && <IconComponent />}
+                  <span className="font-medium text-white">{skill.name}:</span>
+                  <span className="ml-2 text-gray-300">{skill.level}</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
       </div>
     </div>
   );
