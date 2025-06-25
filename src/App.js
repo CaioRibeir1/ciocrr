@@ -477,7 +477,7 @@ const App = () => {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: 'url("https://github.com/CaioRibeir1/ciocrr/blob/main/backgroundsite.png?raw=true")', // <<<<< COLOQUE AQUI A URL DA SUA IMAGEM
+          backgroundImage: 'url("SUA_URL_DA_IMAGEM_DE_FUNDO_AQUI")', // <<<<< COLOQUE AQUI A URL DA SUA IMAGEM
           filter: 'blur(8px)', // Ajuste o valor para mais ou menos desfoque
           WebkitFilter: 'blur(8px)', // Para compatibilidade com navegadores Webkit (Chrome, Safari)
           zIndex: -2, // Abaixo do overlay e do conteúdo principal
@@ -485,8 +485,8 @@ const App = () => {
         }}
       ></div>
 
-      {/* Overlay para tornar o fundo mais escuro (quase preto) e melhorar a legibilidade */}
-      <div className="absolute inset-0 bg-black opacity-95 z-[-1]"></div> {/* Aumentei a opacidade para 95% para ser quase totalmente preto */}
+      {/* Overlay para tornar o fundo menos escuro e melhorar a legibilidade */}
+      <div className="absolute inset-0 bg-black opacity-60 z-[-1]"></div> {/* Opacidade reduzida para 60% */}
 
       <style>
         {`
@@ -513,7 +513,7 @@ const App = () => {
         `}
       </style>
       {/* Conteúdo Principal do Currículo */}
-      <div className="relative w-full max-w-4xl bg-black rounded-lg shadow-xl p-6 sm:p-8 lg:p-10 z-10"> {/* Alterado para bg-black */}
+      <div className="relative w-full max-w-4xl bg-black rounded-lg shadow-xl p-6 sm:p-8 lg:p-10 z-10">
         {/* PDF Download Button - visible only on screen, not on print */}
         <div className="flex justify-end mb-6 no-print">
           <button
@@ -568,7 +568,7 @@ const App = () => {
             <BriefcaseIcon /> Experiência Profissional
           </h2>
           {resumeData.experience.map((job, index) => (
-            <div key={index} className="mb-6 last:mb-0 p-4 bg-neutral-800 rounded-md shadow-inner"> {/* Alterado para bg-neutral-800 */}
+            <div key={index} className="mb-6 last:mb-0 p-4 bg-neutral-800 rounded-md shadow-inner">
               <h3 className="text-xl font-semibold text-white">{job.title}</h3>
               <p className="text-gray-400 text-sm italic">{job.company} - {job.duration}</p>
               <p className="text-gray-300 mt-2 text-sm sm:text-base">{job.description}</p>
@@ -577,12 +577,12 @@ const App = () => {
         </section>
 
         {/* Courses - PDF Carousel (AGORA ABAIXO DA EXPERIÊNCIA PROFISSIONAL) */}
-        <section className="mb-8"> {/* Adicionado mb-8 para espaçamento */}
+        <section className="mb-8">
           <h2 className="text-2xl resume-section-title flex items-center">
             <AwardIcon /> Cursos e Certificados
           </h2>
           {coursesData.length > 0 ? (
-            <div className="relative bg-neutral-800 rounded-lg shadow-md p-6 border border-neutral-700"> {/* Alterado para bg-neutral-800 e border-neutral-700 */}
+            <div className="relative bg-neutral-800 rounded-lg shadow-md p-6 border border-neutral-700">
               {currentCourse && (
                 <>
                   {/* Icon in top-left corner - increased size and margin */}
