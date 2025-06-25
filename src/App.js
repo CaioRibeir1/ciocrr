@@ -477,7 +477,7 @@ const App = () => {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: 'url("SUA_URL_DA_IMAGEM_DE_FUNDO_AQUI")', // <<<<< COLOQUE AQUI A URL DA SUA IMAGEM
+          backgroundImage: 'url("https://github.com/CaioRibeir1/ciocrr/blob/main/backgroundsite.png?raw=true")', // <<<<< COLOQUE AQUI A URL DA SUA IMAGEM
           filter: 'blur(8px)', // Ajuste o valor para mais ou menos desfoque
           WebkitFilter: 'blur(8px)', // Para compatibilidade com navegadores Webkit (Chrome, Safari)
           zIndex: -2, // Abaixo do overlay e do conteúdo principal
